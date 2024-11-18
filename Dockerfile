@@ -31,11 +31,11 @@ COPY . /var/www/html/
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
-# Install application dependencies (if you have a composer.json file)
+# Install application dependencies
 RUN composer install --no-dev --optimize-autoloader
 
 # Expose the port the app will run on
 EXPOSE 9000
 
-# Start PHP-FPM server
-CMD ["php-fpm"]
+# Run migrations before starting PHP-FPM
+CMD php artisan migrate --force && php-fpm
