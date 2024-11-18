@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libzip-dev \
     zlib1g-dev \
+    tzdata \
     git \
     unzip \
     zip \
@@ -37,5 +38,5 @@ RUN composer install --no-dev --optimize-autoloader
 # Expose the port the app will run on
 EXPOSE 9000
 
-# Run migrations before starting PHP-FPM
-CMD php artisan migrate --force && php-fpm
+# Entrypoint script to ensure migrations and setup
+CMD ["sh", "-c", "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=9000"]
