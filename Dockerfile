@@ -43,12 +43,13 @@ RUN chown -R www-data:www-data /var/www/html \
 RUN composer install --no-dev --optimize-autoloader
 
 # Install front-end dependencies and compile assets
-RUN npm install && npm run build
+RUN npm install
+RUN npm run build
 
 # Expose the port the app will run on
 EXPOSE 9000
 
 # Entrypoint script to handle migrations and serve the application
 CMD php artisan config:cache && \
-    php artisan migrate --force && \
+    php artisan migrate:fresh --force && \
     php artisan serve --host=0.0.0.0 --port=9000
