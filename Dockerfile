@@ -49,6 +49,6 @@ RUN npm install && npm run build
 EXPOSE 9000
 
 # Entrypoint script to handle migrations and serve the application
-CMD ["php", "artisan", "config:cache"] && \
-    ["php", "artisan", "migrate", "--force"] && \
-    ["php", "artisan", "serve", "--host=0.0.0.0", "--port=9000"]
+CMD php artisan config:cache && \
+    php artisan migrate --force && \
+    php artisan serve --host=0.0.0.0 --port=9000
