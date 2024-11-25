@@ -17,20 +17,22 @@ RUN apt-get update && apt-get install -y \
 
 # Install PHP extensions (gd, pdo_mysql, mbstring)
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd pdo_mysql mbstring
+    && docker-php-ext-install gd pdo_mysql mbstring zip
 
-# Install Composer (for dependency management)
+# Install Composer globally
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Set the working directory inside the container
 WORKDIR /var/www/html
 
 # Copy the current directory contents into the container
-COPY . /var/www/html/
+COPY . .
 
 # Ensure necessary permissions
 RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html
+    && chmod -R 755 /var/www/html \
+    && mkdir -p /var/www/html/storage/framework/{cache,sessions,views} \
+    && chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Install application dependencies
 RUN composer install --no-dev --optimize-autoloader
@@ -38,5 +40,7 @@ RUN composer install --no-dev --optimize-autoloader
 # Expose the port the app will run on
 EXPOSE 9000
 
-# Entrypoint script to ensure migrations and setup
-CMD ["sh", "-c", "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=9000"]
+# Entrypoint script to handle migrations and serve the application
+CMD php artisan config:cache && \
+    php artisan migrate --force && \
+    php artisan serve --host=0.0.0.0 --port=9000
